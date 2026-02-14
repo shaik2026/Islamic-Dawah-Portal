@@ -1,14 +1,29 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Badge, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { questionsAPI } from '../services/api';
+import { questionsAPI, categoriesAPI } from '../services/api';
 
 function Questions() {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [categories, setCategories] = useState([]);
+  const [filterCategories, setFilterCategories] = useState(['All']);
 
-  const categories = ['All', 'Fiqh', 'Aqeedah', 'Quran', 'Prayer', 'Islamic Rulings'];
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await categoriesAPI.getAll('Question');
+      const cats = response.data;
+      setCategories(cats);
+      setFilterCategories(['All', ...cats.map(c => c.name)]);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   useEffect(() => {
     fetchQuestions();
@@ -17,7 +32,7 @@ function Questions() {
   const fetchQuestions = async () => {
     setLoading(true);
     try {
-      const response = selectedCategory === 'all'
+      const response = selectedCategory === 'All'
         ? await questionsAPI.getAll()
         : await questionsAPI.getByCategory(selectedCategory);
       setQuestions(response.data);
@@ -39,13 +54,13 @@ function Questions() {
   return (
     <Container className="my-5">
       <h1 className="section-title">Questions & Answers</h1>
-      
+
       <div className="category-pills">
-        {categories.map(category => (
+        {filterCategories.map(category => (
           <button
             key={category}
-            className={`category-pill ${selectedCategory === category.toLowerCase() ? 'active' : ''}`}
-            onClick={() => setSelectedCategory(category.toLowerCase())}
+            className={`category-pill ${selectedCategory === category ? 'active' : ''}`}
+            onClick={() => setSelectedCategory(category)}
           >
             {category}
           </button>
@@ -64,21 +79,21 @@ function Questions() {
                       <div className="text-muted small">answers</div>
                     </div>
                   </div>
-                  
+
                   <div className="flex-grow-1">
-                    <Badge bg="success" className="mb-2">{question.category}</Badge>
+                    <Badge bg="success" className="mb-2">{question.category?.name || 'Uncategorized'}</Badge>
                     {question.answers?.some(a => a.isAccepted) && (
                       <Badge bg="success" className="mb-2 ms-2">✓ Answered</Badge>
                     )}
-                    
+
                     <Card.Title>
                       <Link to={`/questions/${question.id}`} className="text-decoration-none text-dark">
                         {question.title}
                       </Link>
                     </Card.Title>
-                    
+
                     <Card.Text>{question.content.substring(0, 200)}...</Card.Text>
-                    
+
                     {question.tags && question.tags.length > 0 && (
                       <div className="mb-3">
                         {question.tags.map((tag, idx) => (
@@ -86,7 +101,7 @@ function Questions() {
                         ))}
                       </div>
                     )}
-                    
+
                     <div className="d-flex justify-content-between align-items-center">
                       <small className="text-muted">
                         Asked by {question.author} on {new Date(question.askedDate).toLocaleDateString()}

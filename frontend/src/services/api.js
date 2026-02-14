@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'http://localhost:5204/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -38,6 +38,15 @@ export const questionsAPI = {
   addAnswer: (questionId, answer) => api.post(`/questions/${questionId}/answers`, answer),
   acceptAnswer: (questionId, answerId) => api.put(`/questions/${questionId}/answers/${answerId}/accept`),
   delete: (id) => api.delete(`/questions/${id}`),
+};
+
+// Categories API
+export const categoriesAPI = {
+  getAll: (type) => api.get('/categories', { params: { type } }),
+  getById: (id) => api.get(`/categories/${id}`),
+  create: (category) => api.post('/categories', category),
+  update: (id, category) => api.put(`/categories/${id}`, category),
+  delete: (id) => api.delete(`/categories/${id}`),
 };
 
 export default api;

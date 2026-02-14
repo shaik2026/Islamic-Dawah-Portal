@@ -62,16 +62,16 @@ function QuestionDetail() {
   return (
     <Container className="my-5">
       <Link to="/questions" className="btn btn-outline-secondary mb-4">← Back to Questions</Link>
-      
+
       <Card className="mb-4">
         <Card.Body>
-          <Badge bg="success" className="mb-3">{question.category}</Badge>
+          <Badge bg="success" className="mb-3">{question.category?.name || 'Uncategorized'}</Badge>
           {question.answers?.some(a => a.isAccepted) && (
             <Badge bg="success" className="mb-3 ms-2">✓ Answered</Badge>
           )}
-          
+
           <h1 className="mb-3">{question.title}</h1>
-          
+
           <div className="d-flex gap-3 mb-4 text-muted">
             <span>👤 {question.author}</span>
             <span>📅 {new Date(question.askedDate).toLocaleDateString()}</span>
@@ -96,7 +96,7 @@ function QuestionDetail() {
 
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h3>{question.answers?.length || 0} Answers</h3>
-        <Button 
+        <Button
           variant="primary"
           onClick={() => setShowAnswerForm(!showAnswerForm)}
         >
@@ -145,8 +145,8 @@ function QuestionDetail() {
               return b.votes - a.votes;
             })
             .map(answer => (
-              <div 
-                key={answer.id} 
+              <div
+                key={answer.id}
                 className={`answer-card ${answer.isAccepted ? 'accepted' : ''}`}
               >
                 {answer.isAccepted && (

@@ -1,14 +1,29 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Badge, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { videosAPI } from '../services/api';
+import { videosAPI, categoriesAPI } from '../services/api';
 
 function Videos() {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [categories, setCategories] = useState([]);
+  const [filterCategories, setFilterCategories] = useState(['All']);
 
-  const categories = ['All', 'Islamic Education', 'Seerah', 'Quran Recitation', 'Prayer', 'Lectures'];
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await categoriesAPI.getAll('Video');
+      const cats = response.data;
+      setCategories(cats);
+      setFilterCategories(['All', ...cats.map(c => c.name)]);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   useEffect(() => {
     fetchVideos();
@@ -17,7 +32,7 @@ function Videos() {
   const fetchVideos = async () => {
     setLoading(true);
     try {
-      const response = selectedCategory === 'all'
+      const response = selectedCategory === 'All'
         ? await videosAPI.getAll()
         : await videosAPI.getByCategory(selectedCategory);
       setVideos(response.data);
@@ -32,7 +47,7 @@ function Videos() {
     const totalMinutes = Math.floor(duration / 60);
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes}m`;
     }
@@ -50,13 +65,13 @@ function Videos() {
   return (
     <Container className="my-5">
       <h1 className="section-title">Videos</h1>
-      
+
       <div className="category-pills">
-        {categories.map(category => (
+        {filterCategories.map(category => (
           <button
             key={category}
-            className={`category-pill ${selectedCategory === category.toLowerCase() ? 'active' : ''}`}
-            onClick={() => setSelectedCategory(category.toLowerCase())}
+            className={`category-pill ${selectedCategory === category ? 'active' : ''}`}
+            onClick={() => setSelectedCategory(category)}
           >
             {category}
           </button>
@@ -71,7 +86,7 @@ function Videos() {
                 <Card.Img variant="top" src={video.thumbnailUrl} />
               </div>
               <Card.Body>
-                <Badge bg="danger" className="mb-2">{video.category}</Badge>
+                <Badge bg="danger" className="mb-2">{video.category?.name || 'Uncategorized'}</Badge>
                 <Card.Title>
                   <Link to={`/videos/${video.id}`} className="text-decoration-none text-dark">
                     {video.title}

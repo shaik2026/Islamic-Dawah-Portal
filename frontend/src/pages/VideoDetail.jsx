@@ -27,7 +27,7 @@ function VideoDetail() {
     const totalMinutes = Math.floor(duration / 60);
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes}m`;
     }
@@ -54,7 +54,7 @@ function VideoDetail() {
   return (
     <Container className="my-5">
       <Link to="/videos" className="btn btn-outline-secondary mb-4">← Back to Videos</Link>
-      
+
       <div className="video-embed mb-4">
         <iframe
           src={video.videoUrl}
@@ -64,11 +64,11 @@ function VideoDetail() {
           allowFullScreen
         ></iframe>
       </div>
-      
-      <Badge bg="danger" className="mb-3">{video.category}</Badge>
-      
+
+      <Badge bg="danger" className="mb-3">{video.category?.name || 'Uncategorized'}</Badge>
+
       <h1 className="mb-3">{video.title}</h1>
-      
+
       <div className="d-flex gap-3 mb-4 text-muted">
         <span>👤 {video.author}</span>
         <span>📅 {new Date(video.publishedDate).toLocaleDateString()}</span>

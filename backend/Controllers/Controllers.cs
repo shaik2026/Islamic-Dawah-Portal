@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MediaPortal.Models;
 using MediaPortal.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MediaPortal.Controllers
 {
@@ -40,6 +41,7 @@ namespace MediaPortal.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Article>> CreateArticle(Article article)
         {
             var createdArticle = await _articleService.CreateArticleAsync(article);
@@ -47,6 +49,7 @@ namespace MediaPortal.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Article>> UpdateArticle(int id, Article article)
         {
             var updatedArticle = await _articleService.UpdateArticleAsync(id, article);
@@ -57,6 +60,7 @@ namespace MediaPortal.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteArticle(int id)
         {
             var result = await _articleService.DeleteArticleAsync(id);
@@ -103,6 +107,7 @@ namespace MediaPortal.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Video>> CreateVideo(Video video)
         {
             var createdVideo = await _videoService.CreateVideoAsync(video);
@@ -110,6 +115,7 @@ namespace MediaPortal.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Video>> UpdateVideo(int id, Video video)
         {
             var updatedVideo = await _videoService.UpdateVideoAsync(id, video);
@@ -120,6 +126,7 @@ namespace MediaPortal.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteVideo(int id)
         {
             var result = await _videoService.DeleteVideoAsync(id);
@@ -166,6 +173,7 @@ namespace MediaPortal.Controllers
         }
 
         [HttpPost]
+        [Authorize] // Any authenticated user can ask
         public async Task<ActionResult<Question>> CreateQuestion(Question question)
         {
             var createdQuestion = await _qnaService.CreateQuestionAsync(question);
@@ -173,6 +181,7 @@ namespace MediaPortal.Controllers
         }
 
         [HttpPost("{id}/answers")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Answer>> AddAnswer(int id, Answer answer)
         {
             try
@@ -187,6 +196,7 @@ namespace MediaPortal.Controllers
         }
 
         [HttpPut("{questionId}/answers/{answerId}/accept")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Answer>> AcceptAnswer(int questionId, int answerId)
         {
             var answer = await _qnaService.AcceptAnswerAsync(questionId, answerId);
@@ -197,6 +207,7 @@ namespace MediaPortal.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteQuestion(int id)
         {
             var result = await _qnaService.DeleteQuestionAsync(id);

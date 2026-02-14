@@ -43,19 +43,19 @@ function ArticleDetail() {
   return (
     <Container className="my-5">
       <Link to="/articles" className="btn btn-outline-secondary mb-4">← Back to Articles</Link>
-      
+
       <article>
-        <img 
-          src={article.imageUrl} 
+        <img
+          src={article.imageUrl}
           alt={article.title}
           className="img-fluid rounded mb-4"
           style={{ width: '100%', maxHeight: '400px', objectFit: 'cover' }}
         />
-        
-        <Badge bg="primary" className="mb-3">{article.category}</Badge>
-        
+
+        <Badge bg="primary" className="mb-3">{article.category?.name || 'Uncategorized'}</Badge>
+
         <h1 className="mb-3">{article.title}</h1>
-        
+
         <div className="d-flex gap-3 mb-4 text-muted">
           <span>👤 {article.author}</span>
           <span>📅 {new Date(article.publishedDate).toLocaleDateString()}</span>

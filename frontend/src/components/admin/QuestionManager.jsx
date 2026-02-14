@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Alert, Badge, Spinner } from 'react-bootstrap';
-import { questionsAPI } from '../../services/api';
+import { questionsAPI, categoriesAPI } from '../../services/api';
 
 function QuestionManager() {
   const [questions, setQuestions] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -14,13 +15,23 @@ function QuestionManager() {
     title: '',
     content: '',
     author: '',
-    category: '',
+    categoryId: '',
     tags: ''
   });
 
   useEffect(() => {
     fetchQuestions();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await categoriesAPI.getAll('Question');
+      setCategories(response.data);
+    } catch (error) {
+      console.error('Error fetching categories', error);
+    }
+  };
 
   const fetchQuestions = async () => {
     setLoading(true);
@@ -47,7 +58,7 @@ function QuestionManager() {
         title: question.title,
         content: question.content,
         author: question.author,
-        category: question.category,
+        categoryId: question.categoryId,
         tags: question.tags.join(', ')
       });
     } else {
@@ -57,7 +68,7 @@ function QuestionManager() {
         title: '',
         content: '',
         author: '',
-        category: '',
+        categoryId: '',
         tags: ''
       });
     }
@@ -78,7 +89,7 @@ function QuestionManager() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const questionData = {
       ...formData,
       tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
@@ -162,7 +173,7 @@ function QuestionManager() {
               </td>
               <td>{question.author}</td>
               <td>
-                <Badge bg="success">{question.category}</Badge>
+                <Badge bg="success">{question.category?.name || 'Uncategorized'}</Badge>
               </td>
               <td>{question.answers?.length || 0}</td>
               <td>{question.views}</td>
@@ -233,19 +244,15 @@ function QuestionManager() {
             <Form.Group className="mb-3">
               <Form.Label>Category *</Form.Label>
               <Form.Select
-                name="category"
-                value={formData.category}
+                name="categoryId"
+                value={formData.categoryId}
                 onChange={handleInputChange}
                 required
               >
                 <option value="">Select category</option>
-                <option value="Fiqh">Fiqh (Islamic Law)</option>
-                <option value="Aqeedah">Aqeedah (Belief)</option>
-                <option value="Quran">Quran</option>
-                <option value="Hadith">Hadith</option>
-                <option value="Prayer">Prayer</option>
-                <option value="Islamic Rulings">Islamic Rulings</option>
-                <option value="Spiritual Development">Spiritual Development</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
               </Form.Select>
             </Form.Group>
 

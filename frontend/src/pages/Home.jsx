@@ -20,7 +20,7 @@ function Home() {
         videosAPI.getAll(),
         questionsAPI.getAll()
       ]);
-      
+
       setArticles(articlesRes.data.slice(0, 3));
       setVideos(videosRes.data.slice(0, 3));
       setQuestions(questionsRes.data.slice(0, 3));
@@ -66,7 +66,7 @@ function Home() {
                 <Card>
                   <Card.Img variant="top" src={article.imageUrl} />
                   <Card.Body>
-                    <Badge bg="primary" className="mb-2">{article.category}</Badge>
+                    <Badge bg="primary" className="mb-2">{article.category?.name || 'Uncategorized'}</Badge>
                     <Card.Title>
                       <Link to={`/articles/${article.id}`} className="text-decoration-none text-dark">
                         {article.title}
@@ -100,7 +100,7 @@ function Home() {
                     <Card.Img variant="top" src={video.thumbnailUrl} />
                   </div>
                   <Card.Body>
-                    <Badge bg="danger" className="mb-2">{video.category}</Badge>
+                    <Badge bg="danger" className="mb-2">{video.category?.name || 'Uncategorized'}</Badge>
                     <Card.Title>
                       <Link to={`/videos/${video.id}`} className="text-decoration-none text-dark">
                         {video.title}
@@ -129,7 +129,7 @@ function Home() {
               <Col md={4} key={question.id} className="mb-4">
                 <Card>
                   <Card.Body>
-                    <Badge bg="success" className="mb-2">{question.category}</Badge>
+                    <Badge bg="success" className="mb-2">{question.category?.name || 'Uncategorized'}</Badge>
                     <Card.Title>
                       <Link to={`/questions/${question.id}`} className="text-decoration-none text-dark">
                         {question.title}

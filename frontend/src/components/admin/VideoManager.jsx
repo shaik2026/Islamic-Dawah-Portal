@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Alert, Badge, Spinner } from 'react-bootstrap';
-import { videosAPI } from '../../services/api';
+import { videosAPI, categoriesAPI } from '../../services/api';
 
 function VideoManager() {
   const [videos, setVideos] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -16,7 +17,7 @@ function VideoManager() {
     description: '',
     videoUrl: '',
     thumbnailUrl: '',
-    category: '',
+    categoryId: '',
     author: '',
     duration: 0,
     tags: ''
@@ -24,7 +25,17 @@ function VideoManager() {
 
   useEffect(() => {
     fetchVideos();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await categoriesAPI.getAll('Video');
+      setCategories(response.data);
+    } catch (error) {
+      console.error('Error fetching categories', error);
+    }
+  };
 
   const fetchVideos = async () => {
     setLoading(true);
@@ -55,7 +66,7 @@ function VideoManager() {
         description: video.description,
         videoUrl: video.videoUrl,
         thumbnailUrl: video.thumbnailUrl,
-        category: video.category,
+        categoryId: video.categoryId,
         author: video.author,
         duration: durationInMinutes,
         tags: video.tags.join(', ')
@@ -69,7 +80,7 @@ function VideoManager() {
         description: '',
         videoUrl: '',
         thumbnailUrl: '',
-        category: '',
+        categoryId: '',
         author: '',
         duration: 0,
         tags: ''
@@ -86,7 +97,7 @@ function VideoManager() {
       description: '',
       videoUrl: '',
       thumbnailUrl: '',
-      category: '',
+      categoryId: '',
       author: '',
       duration: 0,
       tags: ''
@@ -103,7 +114,7 @@ function VideoManager() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const videoData = {
       ...formData,
       duration: formData.duration * 60, // Convert minutes to seconds
@@ -141,7 +152,7 @@ function VideoManager() {
     const totalMinutes = Math.floor(duration / 60);
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes}m`;
     }
@@ -196,7 +207,7 @@ function VideoManager() {
               </td>
               <td>{video.author}</td>
               <td>
-                <Badge bg="danger">{video.category}</Badge>
+                <Badge bg="danger">{video.category?.name || 'Uncategorized'}</Badge>
               </td>
               <td>{formatDuration(video.duration)}</td>
               <td>{video.views}</td>
@@ -287,9 +298,9 @@ function VideoManager() {
               />
               {formData.thumbnailUrl && (
                 <div className="mt-2">
-                  <img 
-                    src={formData.thumbnailUrl} 
-                    alt="Preview" 
+                  <img
+                    src={formData.thumbnailUrl}
+                    alt="Preview"
                     style={{ maxWidth: '200px', maxHeight: '150px', objectFit: 'cover' }}
                     onError={(e) => e.target.style.display = 'none'}
                   />
@@ -312,19 +323,15 @@ function VideoManager() {
             <Form.Group className="mb-3">
               <Form.Label>Category *</Form.Label>
               <Form.Select
-                name="category"
-                value={formData.category}
+                name="categoryId"
+                value={formData.categoryId}
                 onChange={handleInputChange}
                 required
               >
                 <option value="">Select category</option>
-                <option value="Islamic Education">Islamic Education</option>
-                <option value="Seerah">Seerah</option>
-                <option value="Quran Recitation">Quran Recitation</option>
-                <option value="Prayer">Prayer & Worship</option>
-                <option value="Lectures">Lectures</option>
-                <option value="Reminders">Reminders</option>
-                <option value="Converts">For New Muslims</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
               </Form.Select>
             </Form.Group>
 

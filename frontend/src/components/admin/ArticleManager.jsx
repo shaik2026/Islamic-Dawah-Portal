@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Alert, Badge, Spinner } from 'react-bootstrap';
-import { articlesAPI } from '../../services/api';
+import { articlesAPI, categoriesAPI } from '../../services/api';
 
 function ArticleManager() {
   const [articles, setArticles] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -15,14 +16,24 @@ function ArticleManager() {
     title: '',
     content: '',
     author: '',
-    category: '',
+    categoryId: '',
     imageUrl: '',
     tags: ''
   });
 
   useEffect(() => {
     fetchArticles();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await categoriesAPI.getAll('Article');
+      setCategories(response.data);
+    } catch (error) {
+      console.error('Error fetching categories', error);
+    }
+  };
 
   const fetchArticles = async () => {
     setLoading(true);
@@ -50,7 +61,7 @@ function ArticleManager() {
         title: article.title,
         content: article.content,
         author: article.author,
-        category: article.category,
+        categoryId: article.categoryId,
         imageUrl: article.imageUrl,
         tags: article.tags.join(', ')
       });
@@ -62,7 +73,7 @@ function ArticleManager() {
         title: '',
         content: '',
         author: '',
-        category: '',
+        categoryId: '',
         imageUrl: '',
         tags: ''
       });
@@ -77,7 +88,7 @@ function ArticleManager() {
       title: '',
       content: '',
       author: '',
-      category: '',
+      categoryId: '',
       imageUrl: '',
       tags: ''
     });
@@ -93,7 +104,7 @@ function ArticleManager() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const articleData = {
       ...formData,
       tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
@@ -174,7 +185,7 @@ function ArticleManager() {
               </td>
               <td>{article.author}</td>
               <td>
-                <Badge bg="primary">{article.category}</Badge>
+                <Badge bg="primary">{article.category?.name || 'Uncategorized'}</Badge>
               </td>
               <td>{article.views}</td>
               <td>
@@ -255,20 +266,15 @@ function ArticleManager() {
             <Form.Group className="mb-3">
               <Form.Label>Category *</Form.Label>
               <Form.Select
-                name="category"
-                value={formData.category}
+                name="categoryId"
+                value={formData.categoryId}
                 onChange={handleInputChange}
                 required
               >
                 <option value="">Select category</option>
-                <option value="Islamic Foundations">Islamic Foundations</option>
-                <option value="Aqeedah">Aqeedah (Creed)</option>
-                <option value="Fiqh">Fiqh (Jurisprudence)</option>
-                <option value="Seerah">Seerah (Prophet's Life)</option>
-                <option value="Quran & Tafsir">Quran & Tafsir</option>
-                <option value="Hadith">Hadith</option>
-                <option value="Spirituality">Spirituality</option>
-                <option value="Islamic History">Islamic History</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
               </Form.Select>
             </Form.Group>
 
@@ -284,9 +290,9 @@ function ArticleManager() {
               />
               {formData.imageUrl && (
                 <div className="mt-2">
-                  <img 
-                    src={formData.imageUrl} 
-                    alt="Preview" 
+                  <img
+                    src={formData.imageUrl}
+                    alt="Preview"
                     style={{ maxWidth: '200px', maxHeight: '150px', objectFit: 'cover' }}
                     onError={(e) => e.target.style.display = 'none'}
                   />

@@ -3,6 +3,7 @@ import { Container, Tabs, Tab } from 'react-bootstrap';
 import ArticleManager from '../components/admin/ArticleManager';
 import VideoManager from '../components/admin/VideoManager';
 import QuestionManager from '../components/admin/QuestionManager';
+import CategoryManager from '../components/admin/CategoryManager';
 
 function AdminDashboard() {
   const [key, setKey] = useState('articles');
@@ -20,6 +21,9 @@ function AdminDashboard() {
         onSelect={(k) => setKey(k)}
         className="mb-4"
       >
+        <Tab eventKey="categories" title="📂 Manage Categories">
+          <CategoryManager />
+        </Tab>
         <Tab eventKey="articles" title="📰 Manage Articles">
           <ArticleManager />
         </Tab>

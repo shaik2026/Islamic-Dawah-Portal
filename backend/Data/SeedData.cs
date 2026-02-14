@@ -6,6 +6,34 @@ namespace MediaPortal.Data
     {
         public static void Initialize(MediaPortalContext context)
         {
+            // Seed Categories
+            if (!context.Categories.Any())
+            {
+                context.Categories.AddRange(
+                    new Category { Name = "Islamic Foundations", Description = "Core beliefs and practices", Type = "Article" },
+                    new Category { Name = "Aqeedah", Description = "Islamic Creed", Type = "Article" },
+                    new Category { Name = "Allah's Attributes", Description = "Names and Attributes of Allah", Type = "Article" },
+                    new Category { Name = "Seerah", Description = "Biography of the Prophet", Type = "Article" },
+                    
+                    new Category { Name = "Islamic Education", Description = "General Islamic knowledge", Type = "Video" },
+                    new Category { Name = "Seerah (Video)", Description = "Biography of the Prophet (Video)", Type = "Video" }, // Distinct for video if needed, or reuse
+                    new Category { Name = "Prayer", Description = "Salah guides", Type = "Video" },
+
+                    new Category { Name = "Fiqh", Description = "Jurisprudence", Type = "Question" },
+                    new Category { Name = "Spiritual Development", Description = "Tazkiyah", Type = "Question" },
+                    new Category { Name = "Islamic Rulings", Description = "Fatwas", Type = "Question" }
+                );
+                context.SaveChanges();
+            }
+
+            var categories = context.Categories.ToList();
+
+            // Helper to find category by name (fuzzy matching for seerah)
+            Category GetCat(string name, string type) => 
+                categories.FirstOrDefault(c => c.Name == name && c.Type == type) 
+                ?? categories.FirstOrDefault(c => c.Name.Contains(name) && c.Type == type)
+                ?? categories.First(); // Fallback
+
             // Seed Articles
             if (!context.Articles.Any())
             {
@@ -13,9 +41,9 @@ namespace MediaPortal.Data
                     new Article
                     {
                         Title = "The Five Pillars of Islam: A Complete Guide",
-                        Content = "The Five Pillars of Islam are the foundation of Muslim life. They are Shahada (faith), Salah (prayer), Zakat (charity), Sawm (fasting), and Hajj (pilgrimage). These pillars unite Muslims worldwide in their worship and devotion to Allah. Each pillar serves as a spiritual practice that strengthens our connection with the Creator and our community. Understanding and implementing these pillars is essential for every Muslim's spiritual journey...",
+                        Content = "The Five Pillars of Islam are the foundation of Muslim life...",
                         Author = "Sheikh Abdullah",
-                        Category = "Islamic Foundations",
+                        Category = GetCat("Islamic Foundations", "Article"),
                         ImageUrl = "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=800",
                         PublishedDate = DateTime.Now.AddDays(-5),
                         Views = 2834,
@@ -24,9 +52,9 @@ namespace MediaPortal.Data
                     new Article
                     {
                         Title = "Understanding Tawheed: The Oneness of Allah",
-                        Content = "Tawheed is the fundamental concept in Islam - the belief in the absolute oneness and uniqueness of Allah. It is the foundation upon which the entire religion is built. Tawheed encompasses Allah's oneness in His lordship, worship, and names and attributes. This article explores the three categories of Tawheed and their importance in a Muslim's life and faith...",
+                        Content = "Tawheed is the fundamental concept in Islam...",
                         Author = "Dr. Fatima Ahmed",
-                        Category = "Aqeedah",
+                        Category = GetCat("Aqeedah", "Article"),
                         ImageUrl = "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?w=800",
                         PublishedDate = DateTime.Now.AddDays(-3),
                         Views = 1967,
@@ -35,9 +63,9 @@ namespace MediaPortal.Data
                     new Article
                     {
                         Title = "The Beautiful Names of Allah (Asma ul Husna)",
-                        Content = "Allah has 99 beautiful names, each reflecting His perfect attributes and qualities. Learning and understanding these names deepens our love and knowledge of our Creator. From Ar-Rahman (The Most Merciful) to Al-Hakim (The All-Wise), each name teaches us about Allah's nature and how we should worship Him. This comprehensive guide explores the meanings and significance of Allah's beautiful names...",
+                        Content = "Allah has 99 beautiful names...",
                         Author = "Imam Hassan",
-                        Category = "Allah's Attributes",
+                        Category = GetCat("Allah's Attributes", "Article"),
                         ImageUrl = "https://images.unsplash.com/photo-1590650213165-d49f96a9276c?w=800",
                         PublishedDate = DateTime.Now.AddDays(-7),
                         Views = 3421,
@@ -46,9 +74,9 @@ namespace MediaPortal.Data
                     new Article
                     {
                         Title = "Prophet Muhammad ﷺ: The Final Messenger",
-                        Content = "Prophet Muhammad (peace be upon him) is the final messenger sent by Allah to guide humanity. His life, teachings, and character serve as the perfect example for all Muslims. Born in Makkah in 570 CE, he received the first revelation at age 40 and spent 23 years spreading the message of Islam. His Sunnah (way of life) provides guidance on every aspect of life, from worship to social interactions...",
+                        Content = "Prophet Muhammad (peace be upon him) is the final messenger...",
                         Author = "Sheikh Omar",
-                        Category = "Seerah",
+                        Category = GetCat("Seerah", "Article"),
                         ImageUrl = "https://images.unsplash.com/photo-1584289457850-372a19b5bfb0?w=800",
                         PublishedDate = DateTime.Now.AddDays(-2),
                         Views = 2156,
@@ -64,10 +92,10 @@ namespace MediaPortal.Data
                     new Video
                     {
                         Title = "Introduction to Islam: What Every Muslim Should Know",
-                        Description = "A comprehensive introduction to Islam covering the basics of faith, pillars, and essential beliefs every Muslim needs to understand.",
+                        Description = "A comprehensive introduction to Islam...",
                         VideoUrl = "https://www.youtube.com/embed/GhQdlIFylQ8",
                         ThumbnailUrl = "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=800",
-                        Category = "Islamic Education",
+                        Category = GetCat("Islamic Education", "Video"),
                         Author = "Sheikh Yasir Qadhi",
                         PublishedDate = DateTime.Now.AddDays(-10),
                         Views = 8432,
@@ -77,10 +105,10 @@ namespace MediaPortal.Data
                     new Video
                     {
                         Title = "The Life of Prophet Muhammad ﷺ - Complete Seerah",
-                        Description = "An in-depth biography of Prophet Muhammad (peace be upon him) from birth to his final days. Learn about the life of the greatest man in history.",
+                        Description = "An in-depth biography of Prophet Muhammad...",
                         VideoUrl = "https://www.youtube.com/embed/TNhaISOUy6Q",
                         ThumbnailUrl = "https://images.unsplash.com/photo-1584289457850-372a19b5bfb0?w=800",
-                        Category = "Seerah",
+                        Category = GetCat("Seerah (Video)", "Video"),
                         Author = "Mufti Menk",
                         PublishedDate = DateTime.Now.AddDays(-6),
                         Views = 12510,
@@ -90,10 +118,10 @@ namespace MediaPortal.Data
                     new Video
                     {
                         Title = "How to Perform Salah (Prayer) - Step by Step Guide",
-                        Description = "Learn the correct way to perform the five daily prayers with detailed explanations of each position, recitation, and intention.",
+                        Description = "Learn the correct way to perform the five daily prayers...",
                         VideoUrl = "https://www.youtube.com/embed/fmvcAzHpsk8",
                         ThumbnailUrl = "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=800",
-                        Category = "Prayer",
+                        Category = GetCat("Prayer", "Video"),
                         Author = "Sheikh Omar Suleiman",
                         PublishedDate = DateTime.Now.AddDays(-4),
                         Views = 15867,
@@ -111,9 +139,9 @@ namespace MediaPortal.Data
                     new Question
                     {
                         Title = "What are the conditions for Wudu (ablution) to be valid?",
-                        Content = "I want to make sure I'm performing wudu correctly. What are the essential conditions and steps that must be followed for wudu to be valid according to Islamic teachings?",
+                        Content = "I want to make sure I'm performing wudu correctly...",
                         Author = "Ahmad Hassan",
-                        Category = "Fiqh",
+                        Category = GetCat("Fiqh", "Question"),
                         AskedDate = DateTime.Now.AddDays(-8),
                         Views = 856,
                         Tags = new List<string> { "wudu", "purification", "fiqh", "worship" },
@@ -121,28 +149,20 @@ namespace MediaPortal.Data
                         {
                             new Answer
                             {
-                                Content = "Wudu has several conditions: 1) Intention (niyyah), 2) Washing the face, 3) Washing both arms up to the elbows, 4) Wiping the head, 5) Washing both feet up to the ankles. These must be done in order without long breaks between them. The Prophet ﷺ demonstrated the proper method which we follow.",
+                                Content = "Wudu has several conditions...",
                                 Author = "Sheikh Abdullah Rahman",
                                 AnsweredDate = DateTime.Now.AddDays(-7),
                                 Votes = 24,
                                 IsAccepted = true
                             },
-                            new Answer
-                            {
-                                Content = "In addition to the steps mentioned, ensure you use clean water and that there are no barriers preventing water from reaching your skin (like nail polish). The intention should be made in your heart before starting.",
-                                Author = "Ustadh Ibrahim",
-                                AnsweredDate = DateTime.Now.AddDays(-7),
-                                Votes = 12,
-                                IsAccepted = false
-                            }
                         }
                     },
                     new Question
                     {
                         Title = "How can I develop a stronger connection with the Quran?",
-                        Content = "I read the Quran but sometimes struggle to feel connected. What are some practical ways to strengthen my relationship with Allah's book and make its recitation more meaningful?",
+                        Content = "I read the Quran but sometimes struggle...",
                         Author = "Aisha Mohammed",
-                        Category = "Spiritual Development",
+                        Category = GetCat("Spiritual Development", "Question"),
                         AskedDate = DateTime.Now.AddDays(-5),
                         Views = 1234,
                         Tags = new List<string> { "quran", "spirituality", "connection", "recitation" },
@@ -150,7 +170,7 @@ namespace MediaPortal.Data
                         {
                             new Answer
                             {
-                                Content = "Start by learning the meanings of what you recite. Even if you can't understand Arabic fully, read the translation. Also, recite with tajweed slowly and thoughtfully. Set a daily routine, even if it's just a few verses. Reflect on the verses and try to apply them in your daily life. Make dua before reciting asking Allah to open your heart to His words.",
+                                Content = "Start by learning the meanings...",
                                 Author = "Dr. Khadijah Ahmed",
                                 AnsweredDate = DateTime.Now.AddDays(-4),
                                 Votes = 31,
@@ -161,9 +181,9 @@ namespace MediaPortal.Data
                     new Question
                     {
                         Title = "Is it permissible to celebrate the Prophet's ﷺ birthday (Mawlid)?",
-                        Content = "There are different opinions about celebrating Mawlid al-Nabi. What is the Islamic ruling on this, and what were the practices of the early generations?",
+                        Content = "There are different opinions about celebrating Mawlid...",
                         Author = "Yusuf Ali",
-                        Category = "Islamic Rulings",
+                        Category = GetCat("Islamic Rulings", "Question"),
                         AskedDate = DateTime.Now.AddDays(-3),
                         Views = 2167,
                         Tags = new List<string> { "mawlid", "celebration", "fiqh", "bidah" },
@@ -171,7 +191,7 @@ namespace MediaPortal.Data
                         {
                             new Answer
                             {
-                                Content = "This is a matter of scholarly difference. Some scholars permit it as an expression of love for the Prophet ﷺ, while others consider it an innovation (bidah) as it wasn't practiced by the Companions or early generations. What's most important is following the Sunnah in all aspects of life throughout the year, not just on one day. The best way to honor the Prophet ﷺ is to follow his teachings and send salawat upon him regularly.",
+                                Content = "This is a matter of scholarly difference...",
                                 Author = "Sheikh Omar Abdullah",
                                 AnsweredDate = DateTime.Now.AddDays(-2),
                                 Votes = 18,

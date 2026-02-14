@@ -16,13 +16,17 @@ namespace MediaPortal.Services
         public async Task<IEnumerable<Article>> GetAllArticlesAsync()
         {
             return await _context.Articles
+                .Include(a => a.Category)
                 .OrderByDescending(a => a.PublishedDate)
                 .ToListAsync();
         }
 
         public async Task<Article?> GetArticleByIdAsync(int id)
         {
-            var article = await _context.Articles.FindAsync(id);
+            var article = await _context.Articles
+                .Include(a => a.Category)
+                .FirstOrDefaultAsync(a => a.Id == id);
+            
             if (article != null)
             {
                 article.Views++;
@@ -34,7 +38,8 @@ namespace MediaPortal.Services
         public async Task<IEnumerable<Article>> GetArticlesByCategoryAsync(string category)
         {
             return await _context.Articles
-                .Where(a => a.Category.ToLower() == category.ToLower())
+                .Include(a => a.Category)
+                .Where(a => a.Category.Name == category)
                 .OrderByDescending(a => a.PublishedDate)
                 .ToListAsync();
         }
@@ -57,7 +62,7 @@ namespace MediaPortal.Services
             existingArticle.Title = article.Title;
             existingArticle.Content = article.Content;
             existingArticle.Author = article.Author;
-            existingArticle.Category = article.Category;
+            existingArticle.CategoryId = article.CategoryId;
             existingArticle.ImageUrl = article.ImageUrl;
             existingArticle.Tags = article.Tags;
 
@@ -89,13 +94,16 @@ namespace MediaPortal.Services
         public async Task<IEnumerable<Video>> GetAllVideosAsync()
         {
             return await _context.Videos
+                .Include(v => v.Category)
                 .OrderByDescending(v => v.PublishedDate)
                 .ToListAsync();
         }
 
         public async Task<Video?> GetVideoByIdAsync(int id)
         {
-            var video = await _context.Videos.FindAsync(id);
+            var video = await _context.Videos
+                .Include(v => v.Category)
+                .FirstOrDefaultAsync(v => v.Id == id);
             if (video != null)
             {
                 video.Views++;
@@ -107,7 +115,8 @@ namespace MediaPortal.Services
         public async Task<IEnumerable<Video>> GetVideosByCategoryAsync(string category)
         {
             return await _context.Videos
-                .Where(v => v.Category.ToLower() == category.ToLower())
+                .Include(v => v.Category)
+                .Where(v => v.Category.Name == category)
                 .OrderByDescending(v => v.PublishedDate)
                 .ToListAsync();
         }
@@ -131,7 +140,7 @@ namespace MediaPortal.Services
             existingVideo.Description = video.Description;
             existingVideo.VideoUrl = video.VideoUrl;
             existingVideo.ThumbnailUrl = video.ThumbnailUrl;
-            existingVideo.Category = video.Category;
+            existingVideo.CategoryId = video.CategoryId;
             existingVideo.Author = video.Author;
             existingVideo.Duration = video.Duration;
             existingVideo.Tags = video.Tags;
@@ -164,6 +173,7 @@ namespace MediaPortal.Services
         public async Task<IEnumerable<Question>> GetAllQuestionsAsync()
         {
             return await _context.Questions
+                .Include(q => q.Category)
                 .Include(q => q.Answers)
                 .OrderByDescending(q => q.AskedDate)
                 .ToListAsync();
@@ -172,6 +182,7 @@ namespace MediaPortal.Services
         public async Task<Question?> GetQuestionByIdAsync(int id)
         {
             var question = await _context.Questions
+                .Include(q => q.Category)
                 .Include(q => q.Answers)
                 .FirstOrDefaultAsync(q => q.Id == id);
             
@@ -186,8 +197,9 @@ namespace MediaPortal.Services
         public async Task<IEnumerable<Question>> GetQuestionsByCategoryAsync(string category)
         {
             return await _context.Questions
+                .Include(q => q.Category)
                 .Include(q => q.Answers)
-                .Where(q => q.Category.ToLower() == category.ToLower())
+                .Where(q => q.Category.Name == category)
                 .OrderByDescending(q => q.AskedDate)
                 .ToListAsync();
         }
