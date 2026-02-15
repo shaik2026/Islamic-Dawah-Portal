@@ -46,15 +46,16 @@ builder.Services.AddCors(options =>
 });
 
 // Configure Database
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<MediaPortalContext>(options =>
 {
-    if (builder.Environment.IsDevelopment())
+    if (!string.IsNullOrEmpty(connectionString) && connectionString != "OVERRIDE_IN_AZURE_APP_SETTINGS")
     {
-        options.UseInMemoryDatabase("MediaPortalDB");
+        options.UseSqlServer(connectionString);
     }
     else
     {
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+        options.UseInMemoryDatabase("MediaPortalDB");
     }
 });
 
