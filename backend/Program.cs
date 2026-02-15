@@ -8,7 +8,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Islamic Dawah Portal API",
+        Version = "v1",
+        Description = "API for the Islamic Dawah Portal - Articles, Videos, and Q&A"
+    });
+});
 
 // Configure JWT Authentication
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "SecretKeyForDemoJustForTesting123!";
