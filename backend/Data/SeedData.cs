@@ -16,7 +16,7 @@ namespace MediaPortal.Data
                     new Category { Name = "Seerah", Description = "Biography of the Prophet", Type = "Article" },
                     
                     new Category { Name = "Islamic Education", Description = "General Islamic knowledge", Type = "Video" },
-                    new Category { Name = "Seerah (Video)", Description = "Biography of the Prophet (Video)", Type = "Video" }, // Distinct for video if needed, or reuse
+                    new Category { Name = "Seerah (Video)", Description = "Biography of the Prophet (Video)", Type = "Video" },
                     new Category { Name = "Prayer", Description = "Salah guides", Type = "Video" },
 
                     new Category { Name = "Fiqh", Description = "Jurisprudence", Type = "Question" },
@@ -26,13 +26,12 @@ namespace MediaPortal.Data
                 context.SaveChanges();
             }
 
-            var categories = context.Categories.ToList();
-
-            // Helper to find category by name (fuzzy matching for seerah)
-            Category GetCat(string name, string type) => 
-                categories.FirstOrDefault(c => c.Name == name && c.Type == type) 
-                ?? categories.FirstOrDefault(c => c.Name.Contains(name) && c.Type == type)
-                ?? categories.First(); // Fallback
+            // Helper to find category ID by name
+            int GetCatId(string name, string type) =>
+                context.Categories
+                    .Where(c => c.Name == name && c.Type == type)
+                    .Select(c => c.Id)
+                    .FirstOrDefault();
 
             // Seed Articles
             if (!context.Articles.Any())
@@ -43,7 +42,7 @@ namespace MediaPortal.Data
                         Title = "The Five Pillars of Islam: A Complete Guide",
                         Content = "The Five Pillars of Islam are the foundation of Muslim life...",
                         Author = "Sheikh Abdullah",
-                        Category = GetCat("Islamic Foundations", "Article"),
+                        CategoryId = GetCatId("Islamic Foundations", "Article"),
                         ImageUrl = "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=800",
                         PublishedDate = DateTime.Now.AddDays(-5),
                         Views = 2834,
@@ -54,7 +53,7 @@ namespace MediaPortal.Data
                         Title = "Understanding Tawheed: The Oneness of Allah",
                         Content = "Tawheed is the fundamental concept in Islam...",
                         Author = "Dr. Fatima Ahmed",
-                        Category = GetCat("Aqeedah", "Article"),
+                        CategoryId = GetCatId("Aqeedah", "Article"),
                         ImageUrl = "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?w=800",
                         PublishedDate = DateTime.Now.AddDays(-3),
                         Views = 1967,
@@ -65,7 +64,7 @@ namespace MediaPortal.Data
                         Title = "The Beautiful Names of Allah (Asma ul Husna)",
                         Content = "Allah has 99 beautiful names...",
                         Author = "Imam Hassan",
-                        Category = GetCat("Allah's Attributes", "Article"),
+                        CategoryId = GetCatId("Allah's Attributes", "Article"),
                         ImageUrl = "https://images.unsplash.com/photo-1590650213165-d49f96a9276c?w=800",
                         PublishedDate = DateTime.Now.AddDays(-7),
                         Views = 3421,
@@ -73,16 +72,17 @@ namespace MediaPortal.Data
                     },
                     new Article
                     {
-                        Title = "Prophet Muhammad ﷺ: The Final Messenger",
+                        Title = "Prophet Muhammad: The Final Messenger",
                         Content = "Prophet Muhammad (peace be upon him) is the final messenger...",
                         Author = "Sheikh Omar",
-                        Category = GetCat("Seerah", "Article"),
+                        CategoryId = GetCatId("Seerah", "Article"),
                         ImageUrl = "https://images.unsplash.com/photo-1584289457850-372a19b5bfb0?w=800",
                         PublishedDate = DateTime.Now.AddDays(-2),
                         Views = 2156,
                         Tags = new List<string> { "prophet", "muhammad", "seerah", "biography" }
                     }
                 );
+                context.SaveChanges();
             }
 
             // Seed Videos
@@ -95,7 +95,7 @@ namespace MediaPortal.Data
                         Description = "A comprehensive introduction to Islam...",
                         VideoUrl = "https://www.youtube.com/embed/GhQdlIFylQ8",
                         ThumbnailUrl = "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=800",
-                        Category = GetCat("Islamic Education", "Video"),
+                        CategoryId = GetCatId("Islamic Education", "Video"),
                         Author = "Sheikh Yasir Qadhi",
                         PublishedDate = DateTime.Now.AddDays(-10),
                         Views = 8432,
@@ -104,11 +104,11 @@ namespace MediaPortal.Data
                     },
                     new Video
                     {
-                        Title = "The Life of Prophet Muhammad ﷺ - Complete Seerah",
+                        Title = "The Life of Prophet Muhammad - Complete Seerah",
                         Description = "An in-depth biography of Prophet Muhammad...",
                         VideoUrl = "https://www.youtube.com/embed/TNhaISOUy6Q",
                         ThumbnailUrl = "https://images.unsplash.com/photo-1584289457850-372a19b5bfb0?w=800",
-                        Category = GetCat("Seerah (Video)", "Video"),
+                        CategoryId = GetCatId("Seerah (Video)", "Video"),
                         Author = "Mufti Menk",
                         PublishedDate = DateTime.Now.AddDays(-6),
                         Views = 12510,
@@ -121,7 +121,7 @@ namespace MediaPortal.Data
                         Description = "Learn the correct way to perform the five daily prayers...",
                         VideoUrl = "https://www.youtube.com/embed/fmvcAzHpsk8",
                         ThumbnailUrl = "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=800",
-                        Category = GetCat("Prayer", "Video"),
+                        CategoryId = GetCatId("Prayer", "Video"),
                         Author = "Sheikh Omar Suleiman",
                         PublishedDate = DateTime.Now.AddDays(-4),
                         Views = 15867,
@@ -129,6 +129,7 @@ namespace MediaPortal.Data
                         Tags = new List<string> { "salah", "prayer", "worship", "tutorial" }
                     }
                 );
+                context.SaveChanges();
             }
 
             // Seed Questions
@@ -141,7 +142,7 @@ namespace MediaPortal.Data
                         Title = "What are the conditions for Wudu (ablution) to be valid?",
                         Content = "I want to make sure I'm performing wudu correctly...",
                         Author = "Ahmad Hassan",
-                        Category = GetCat("Fiqh", "Question"),
+                        CategoryId = GetCatId("Fiqh", "Question"),
                         AskedDate = DateTime.Now.AddDays(-8),
                         Views = 856,
                         Tags = new List<string> { "wudu", "purification", "fiqh", "worship" },
@@ -162,7 +163,7 @@ namespace MediaPortal.Data
                         Title = "How can I develop a stronger connection with the Quran?",
                         Content = "I read the Quran but sometimes struggle...",
                         Author = "Aisha Mohammed",
-                        Category = GetCat("Spiritual Development", "Question"),
+                        CategoryId = GetCatId("Spiritual Development", "Question"),
                         AskedDate = DateTime.Now.AddDays(-5),
                         Views = 1234,
                         Tags = new List<string> { "quran", "spirituality", "connection", "recitation" },
@@ -180,10 +181,10 @@ namespace MediaPortal.Data
                     },
                     new Question
                     {
-                        Title = "Is it permissible to celebrate the Prophet's ﷺ birthday (Mawlid)?",
+                        Title = "Is it permissible to celebrate the Prophet's birthday (Mawlid)?",
                         Content = "There are different opinions about celebrating Mawlid...",
                         Author = "Yusuf Ali",
-                        Category = GetCat("Islamic Rulings", "Question"),
+                        CategoryId = GetCatId("Islamic Rulings", "Question"),
                         AskedDate = DateTime.Now.AddDays(-3),
                         Views = 2167,
                         Tags = new List<string> { "mawlid", "celebration", "fiqh", "bidah" },
@@ -202,9 +203,8 @@ namespace MediaPortal.Data
                 };
 
                 context.Questions.AddRange(questions);
+                context.SaveChanges();
             }
-
-            context.SaveChanges();
         }
     }
 }
