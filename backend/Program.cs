@@ -71,22 +71,24 @@ builder.Services.AddScoped<IQnAService, QnAService>();
 var app = builder.Build();
 
 // Create database schema and seed data
-using (var scope = app.Services.CreateScope())
+try
 {
-    var context = scope.ServiceProvider.GetRequiredService<MediaPortalContext>();
-    
-    // Create tables (critical - let errors surface)
-    context.Database.EnsureCreated();
-    
-    // Seed sample data
-    try
+    using (var scope = app.Services.CreateScope())
     {
+        var context = scope.ServiceProvider.GetRequiredService<MediaPortalContext>();
+        
+        // Create tables if they don't exist
+        context.Database.EnsureCreated();
+        app.Logger.LogInformation("Database schema created successfully.");
+        
+        // Seed sample data
         SeedData.Initialize(context);
+        app.Logger.LogInformation("Seed data initialized successfully.");
     }
-    catch (Exception ex)
-    {
-        app.Logger.LogError(ex, "An error occurred while seeding the database.");
-    }
+}
+catch (Exception ex)
+{
+    app.Logger.LogError(ex, "Database initialization failed. App will continue with degraded functionality.");
 }
 
 // Configure the HTTP request pipeline.
