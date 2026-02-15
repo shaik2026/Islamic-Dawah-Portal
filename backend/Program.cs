@@ -90,7 +90,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-app.UseDeveloperExceptionPage(); // Shows detailed errors - remove after debugging
 app.UseSwagger();
 app.UseSwaggerUI();
 
