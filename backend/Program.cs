@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MediaPortal.Data;
 using MediaPortal.Services;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +11,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Configure JWT Authentication
-var key = System.Text.Encoding.ASCII.GetBytes("SecretKeyForDemoJustForTesting123!"); // In production, use appsettings.json
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "SecretKeyForDemoJustForTesting123!";
+var key = System.Text.Encoding.ASCII.GetBytes(jwtKey);
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
@@ -35,15 +37,26 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReactApp",
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000", "http://localhost:5173")
+            var origins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
+                ?? new[] { "http://localhost:3000", "http://localhost:5173" };
+            policy.WithOrigins(origins)
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
 });
 
-// Configure Database (Using In-Memory for demo purposes)
+// Configure Database
 builder.Services.AddDbContext<MediaPortalContext>(options =>
-    options.UseInMemoryDatabase("MediaPortalDB"));
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        options.UseInMemoryDatabase("MediaPortalDB");
+    }
+    else
+    {
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    }
+});
 
 // Register Services
 builder.Services.AddScoped<IArticleService, ArticleService>();

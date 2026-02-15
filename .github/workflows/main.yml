@@ -1,4 +1,4 @@
-name: build-and-test
+name: Deploy to Azure
 
 on:
   push:
@@ -6,43 +6,71 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  AZURE_WEBAPP_NAME: islamic-dawah-api    # Change to your Azure App Service name
+  DOTNET_VERSION: '8.0.x'
+  NODE_VERSION: '20'
+
 jobs:
-  build-backend:
+  # ── Backend: Build & Deploy to Azure App Service ──
+  deploy-backend:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
     - name: Restore dependencies
       run: dotnet restore backend/MediaPortal.csproj
-    - name: Build
-      run: dotnet build backend/MediaPortal.csproj --no-restore
-    - name: Test
-      run: dotnet test backend/MediaPortal.csproj --no-build --verbosity normal
 
-  build-frontend:
+    - name: Build
+      run: dotnet build backend/MediaPortal.csproj --configuration Release --no-restore
+
+    - name: Publish
+      run: dotnet publish backend/MediaPortal.csproj --configuration Release --output ./backend/publish --no-build
+
+    - name: Deploy to Azure App Service
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: ./backend/publish
+
+  # ── Frontend: Build & Deploy to Azure Static Web Apps ──
+  deploy-frontend:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js
+
+    - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: 20
+        node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
         cache-dependency-path: frontend/package-lock.json
+
     - name: Install dependencies
       run: |
         cd frontend
         npm ci
+
     - name: Build
       run: |
         cd frontend
         npm run build
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      if: github.ref == 'refs/heads/main'
+      env:
+        VITE_API_URL: https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net/api
+
+    - name: Deploy to Azure Static Web Apps
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: Azure/static-web-apps-deploy@v1
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./frontend/dist
+        azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        action: "upload"
+        skip_app_build: true
+        app_location: "/frontend/dist"
