@@ -15,11 +15,12 @@ namespace MediaPortal.Controllers
     public class AuthController : ControllerBase
     {
         private readonly MediaPortalContext _context;
-        private const string SecretKey = "SecretKeyForDemoJustForTesting123!"; // Same as Program.cs
+        private readonly string _secretKey;
 
-        public AuthController(MediaPortalContext context)
+        public AuthController(MediaPortalContext context, IConfiguration configuration)
         {
             _context = context;
+            _secretKey = configuration["Jwt:Key"] ?? "SecretKeyForDemoJustForTesting123!";
         }
 
         [HttpPost("register")]
@@ -101,7 +102,7 @@ namespace MediaPortal.Controllers
         private string GenerateJwtToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(SecretKey);
+            var key = Encoding.ASCII.GetBytes(_secretKey);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
