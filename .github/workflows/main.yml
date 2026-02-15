@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 env:
-  AZURE_WEBAPP_NAME: islamic-dawah-api-gqbafmgdaqgaeeau    # Your Azure App Service name
+  AZURE_WEBAPP_NAME: islamic-dawah-api    # Your Azure App Service name
   DOTNET_VERSION: '8.0.x'
 
 jobs:
