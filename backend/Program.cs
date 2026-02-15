@@ -45,11 +45,15 @@ builder.Services.AddCors(options =>
         });
 });
 
-// Configure Database
+// Configure Database - Use InMemory unless a real SQL Server connection string is provided
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var isRealConnectionString = !string.IsNullOrEmpty(connectionString) 
+    && connectionString != "OVERRIDE_IN_AZURE_APP_SETTINGS"
+    && (connectionString.Contains("Server=") || connectionString.Contains("Data Source="));
+
 builder.Services.AddDbContext<MediaPortalContext>(options =>
 {
-    if (!string.IsNullOrEmpty(connectionString) && connectionString != "OVERRIDE_IN_AZURE_APP_SETTINGS")
+    if (isRealConnectionString)
     {
         options.UseSqlServer(connectionString);
     }
