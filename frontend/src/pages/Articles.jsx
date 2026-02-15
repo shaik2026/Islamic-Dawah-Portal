@@ -164,7 +164,9 @@ function Articles() {
                 </div>
               )}
 
-              <Card.Img variant="top" src={article.imageUrl} />
+              <div className={`article-thumbnail gradient-${(article.id % 4) + 1}`}>
+                <h3>{article.title}</h3>
+              </div>
               <Card.Body>
                 <Badge bg="primary" className="mb-2">{article.category?.name || 'Uncategorized'}</Badge>
                 <Card.Title>

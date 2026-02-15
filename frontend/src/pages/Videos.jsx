@@ -83,7 +83,9 @@ function Videos() {
           <Col md={6} lg={4} key={video.id} className="mb-4">
             <Card>
               <div className="video-thumbnail">
-                <Card.Img variant="top" src={video.thumbnailUrl} />
+                <div className={`article-thumbnail gradient-${(video.id % 4) + 1}`}>
+                  <h3>{video.title}</h3>
+                </div>
               </div>
               <Card.Body>
                 <Badge bg="danger" className="mb-2">{video.category?.name || 'Uncategorized'}</Badge>
