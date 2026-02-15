@@ -70,18 +70,23 @@ builder.Services.AddScoped<IQnAService, QnAService>();
 
 var app = builder.Build();
 
-// Seed initial data
-try
+// Create database schema and seed data
+using (var scope = app.Services.CreateScope())
 {
-    using (var scope = app.Services.CreateScope())
+    var context = scope.ServiceProvider.GetRequiredService<MediaPortalContext>();
+    
+    // Create tables (critical - let errors surface)
+    context.Database.EnsureCreated();
+    
+    // Seed sample data
+    try
     {
-        var context = scope.ServiceProvider.GetRequiredService<MediaPortalContext>();
         SeedData.Initialize(context);
     }
-}
-catch (Exception ex)
-{
-    app.Logger.LogError(ex, "An error occurred while seeding the database.");
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "An error occurred while seeding the database.");
+    }
 }
 
 // Configure the HTTP request pipeline.

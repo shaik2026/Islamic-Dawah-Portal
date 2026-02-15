@@ -6,9 +6,6 @@ namespace MediaPortal.Data
     {
         public static void Initialize(MediaPortalContext context)
         {
-            // Auto-create database schema (for SQL Server; no-op for InMemory)
-            context.Database.EnsureCreated();
-
             // Seed Categories
             if (!context.Categories.Any())
             {
