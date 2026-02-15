@@ -67,18 +67,22 @@ builder.Services.AddScoped<IQnAService, QnAService>();
 var app = builder.Build();
 
 // Seed initial data
-using (var scope = app.Services.CreateScope())
+try
 {
-    var context = scope.ServiceProvider.GetRequiredService<MediaPortalContext>();
-    SeedData.Initialize(context);
+    using (var scope = app.Services.CreateScope())
+    {
+        var context = scope.ServiceProvider.GetRequiredService<MediaPortalContext>();
+        SeedData.Initialize(context);
+    }
+}
+catch (Exception ex)
+{
+    app.Logger.LogError(ex, "An error occurred while seeding the database.");
 }
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseCors("AllowReactApp");
 
