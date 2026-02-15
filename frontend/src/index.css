@@ -1,9 +1,9 @@
 :root {
-  --primary-color: #006400;
-  --secondary-color: #228B22;
-  --accent-color: #DAA520;
-  --bg-light: #F5F5DC;
-  --text-dark: #2c3e50;
+  --primary-color: #0d6b4e;
+  --secondary-color: #10b981;
+  --accent-color: #f59e0b;
+  --bg-light: #f0fdf4;
+  --text-dark: #1e293b;
 }
 
 body {
@@ -17,7 +17,7 @@ body {
 }
 
 .hero-section {
-  background: linear-gradient(135deg, #006400 0%, #228B22 100%);
+  background: linear-gradient(135deg, #064e3b 0%, #0d6b4e 50%, #10b981 100%);
   color: white;
   padding: 80px 0 60px;
   margin-bottom: 40px;
@@ -37,14 +37,14 @@ body {
 .card {
   border: none;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   height: 100%;
 }
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 .card-img-top {
@@ -64,7 +64,7 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0,0,0,0.7);
+  background: rgba(0, 0, 0, 0.7);
   color: white;
   width: 60px;
   height: 60px;
@@ -82,7 +82,7 @@ body {
 }
 
 .stat-badge {
-  background-color: rgba(0,0,0,0.05);
+  background-color: rgba(0, 0, 0, 0.05);
   color: #666;
   padding: 4px 8px;
   border-radius: 4px;
@@ -277,7 +277,7 @@ body {
 
 /* Edit Modal */
 .edit-modal-header {
-  background: linear-gradient(135deg, #006400 0%, #228B22 100%);
+  background: linear-gradient(135deg, #064e3b 0%, #0d6b4e 50%, #10b981 100%);
   color: #fff;
   border-bottom: none;
 }
@@ -301,7 +301,7 @@ body {
 .edit-modal-body .form-control:focus,
 .edit-modal-body .form-select:focus {
   border-color: var(--secondary-color);
-  box-shadow: 0 0 0 3px rgba(34, 139, 34, 0.15);
+  box-shadow: 0 0 0 3px rgba(13, 107, 78, 0.15);
 }
 
 /* Delete Modal */
